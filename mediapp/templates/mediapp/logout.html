@@ -1,0 +1,16 @@
+
+{% extends "mediapp/base.html" %}
+{% block content %}
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-message">
+            <h1>You have been logged out</h1>
+            <p>Thank you for using MediCost. You have successfully logged out of your account.</p>
+            <div class="auth-actions">
+                <a href="{% url 'login' %}" class="btn btn-primary">Log In Again</a>
+                <a href="{% url 'home' %}" class="btn btn-outline">Return Home</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

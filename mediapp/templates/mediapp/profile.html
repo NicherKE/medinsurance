@@ -1,0 +1,92 @@
+
+{% extends "mediapp/base.html" %}
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Profile Settings</h1>
+    </div>
+</section>
+
+<section class="profile-content">
+    <div class="container">
+        <div class="dashboard-grid">
+            <div class="dashboard-sidebar">
+                <div class="dashboard-user">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <h3>{{ user.username }}</h3>
+                        <p>{{ user.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-nav">
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <a href="{% url 'prediction_new' %}">New Prediction</a>
+                    <a href="{% url 'profile' %}" class="active">Profile Settings</a>
+                </div>
+            </div>
+            
+            <div class="dashboard-main">
+                <div class="profile-section">
+                    <h2>Account Information</h2>
+                    
+                    <div class="profile-details">
+                        <div class="profile-detail">
+                            <span class="detail-label">Username:</span>
+                            <span class="detail-value">{{ user.username }}</span>
+                        </div>
+                        <div class="profile-detail">
+                            <span class="detail-label">Email:</span>
+                            <span class="detail-value">{{ user.email }}</span>
+                        </div>
+                        <div class="profile-detail">
+                            <span class="detail-label">Account Created:</span>
+                            <span class="detail-value">{{ user.date_joined|date:"F j, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h2>Personal Information</h2>
+                    <form method="POST" class="profile-form">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="id_birth_date">Birth Date</label>
+                            {{ p_form.birth_date }}
+                            {% if p_form.birth_date.errors %}
+                                <div class="form-error">{{ p_form.birth_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="id_phone">Phone Number</label>
+                            {{ p_form.phone }}
+                            {% if p_form.phone.errors %}
+                                <div class="form-error">{{ p_form.phone.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Update Profile</button>
+                    </form>
+                </div>
+                
+                <div class="profile-section">
+                    <h2>Account Security</h2>
+                    <div class="security-actions">
+                        <div class="security-action">
+                            <div class="security-info">
+                                <h4>Change Password</h4>
+                                <p>Update your password to maintain account security</p>
+                            </div>
+                            <a href="#" class="btn btn-outline">Change Password</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

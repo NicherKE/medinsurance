@@ -1,0 +1,139 @@
+{% extends "mediapp/base.html" %}
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Prediction Results</h1>
+    </div>
+</section>
+
+<section class="result-content">
+    <div class="container">
+        <div class="result-card">
+            <div class="result-header">
+                <h2>Your Estimated Medical Cost</h2>
+                <p class="result-date">Generated on {{ prediction.created_at|date:"F j, Y" }}</p>
+            </div>
+            
+            <div class="result-main">
+                <div class="result-amount" style="color: {{ risk_color }}">
+                    <span class="dollar-sign">Ksh</span>
+                    <span class="amount-value">{{ prediction.predicted_cost|floatformat:2 }}</span>
+                    <span class="per-year">/ year</span>
+                </div>
+                
+                <div class="result-risk">
+                    <div class="risk-label">Risk Level:</div>
+                    <div class="risk-value" style="color: {{ risk_color }}">{{ risk_level }}</div>
+                </div>
+                
+                <div class="result-comparison">
+                    <h3>Comparison to Your Average</h3>
+                    <div class="comparison-data">
+                        <div class="comparison-item">
+                            <span>Your Average:</span>
+                            <span>Ksh{{ comparison.user_avg|floatformat:2 }}</span>
+                        </div>
+                        <div class="comparison-item">
+                            <span>Difference:</span>
+                            <span {% if comparison.difference > 0 %}class="text-danger"{% else %}class="text-success"{% endif %}>
+                                {% if comparison.difference > 0 %}+{% endif %}Ksh{{ comparison.difference|floatformat:2 }}
+                                ({% if comparison.percent_diff > 0 %}+{% endif %}{{ comparison.percent_diff|floatformat:1 }}%)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-details">
+                <h3>Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span>Age:</span>
+                        <span>{{ prediction.age }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Gender:</span>
+                        <span>{{ prediction.gender|title }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>BMI:</span>
+                        <span>{{ prediction.bmi }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Children:</span>
+                        <span>{{ prediction.children }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Smoker:</span>
+                        <span>{{ prediction.smoker|title }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span>Region:</span>
+                        <span>{{ prediction.region|title }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="result-charts">
+                <div class="chart-container">
+                    <h3>Cost Breakdown</h3>
+                    <canvas id="costBreakdownChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="result-actions">
+                <a href="{% url 'prediction_new' %}" class="btn btn-primary">Create New Prediction</a>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cost breakdown chart
+    const breakdownCtx = document.getElementById('costBreakdownChart').getContext('2d');
+    
+    // Calculate breakdown components (simplified for demo)
+    const totalCost = {{ prediction.predicted_cost }};
+    const hospitalCost = totalCost * 0.45;
+    const physicianCost = totalCost * 0.25;
+    const prescriptionCost = totalCost * 0.15;
+    const otherCost = totalCost * 0.15;
+    
+    new Chart(breakdownCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Hospital Care', 'Physician Services', 'Prescription Drugs', 'Other'],
+            datasets: [{
+                data: [hospitalCost, physicianCost, prescriptionCost, otherCost],
+                backgroundColor: [
+                    '#2c7be5',
+                    '#4CAF50',
+                    '#FFC107',
+                    '#9575CD'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const value = context.raw;
+                            const percentage = ((value / totalCost) * 100).toFixed(1);
+                            return `Ksh{context.label}: KshKsh{value.toFixed(2)} (Ksh{percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
